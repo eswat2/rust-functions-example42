@@ -13,11 +13,11 @@ use sudoku::Sudoku;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    SimpleLogger::new().with_level(LevelFilter::Info).init().unwrap();
+  SimpleLogger::new().with_level(LevelFilter::Info).init().unwrap();
 
-    let func = handler_fn(my_handler);
-    lambda_runtime::run(func).await?;
-    Ok(())
+  let func = handler_fn(my_handler);
+  lambda_runtime::run(func).await?;
+  Ok(())
 }
 
 pub(crate) async fn my_handler(_event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
@@ -40,32 +40,33 @@ pub(crate) async fn my_handler(_event: ApiGatewayProxyRequest, _ctx: Context) ->
 
   let data = serde_json::json!({
     "metrics" : {
-        "counts": {
-            "blanks": blanks,
-            "clues": 81 - blanks
-        },
-        "nanos": {
-            "generate": time,
-            "solve": solved
-        }
+      "counts": {
+        "blanks": blanks,
+        "clues": 81 - blanks
+      },
+      "nanos": {
+        "generate": time,
+        "solve": solved
+      }
     },
     "puzzle": puzzle,
     "ref": base64::encode(line)
   });
 
   let payload = serde_json::to_string(&data).unwrap();
-    let mut head = HeaderMap::new();
-    let multi = HeaderMap::new();
 
-    head.insert(header::CONTENT_TYPE, "application/json".parse().unwrap());
+  let mut head = HeaderMap::new();
+  let multi = HeaderMap::new();
 
-    let resp = ApiGatewayProxyResponse {
-        status_code: 200,
-        headers: head,
-        multi_value_headers: multi,
-        body: Some(Body::Text(format!("{}", payload))),
-        is_base64_encoded: Some(false),
-    };
+  head.insert(header::CONTENT_TYPE, "application/json".parse().unwrap());
+
+  let resp = ApiGatewayProxyResponse {
+    status_code: 200,
+    headers: head,
+    multi_value_headers: multi,
+    body: Some(Body::Text(format!("{}", payload))),
+    is_base64_encoded: Some(false),
+  };
 
   Ok(resp)
 }
